@@ -45,8 +45,8 @@
                     <div class="content">
                       <div class="title">{{ clientNode.name }}</div>
                       <div v-if="clientNode.client" class="details">
-                        <v-chip size="small" class="mb-1">{{ clientNode.client.documentId }}</v-chip>
-                        <v-chip size="small" class="mb-1">{{ clientNode.client.phone }}</v-chip>
+                        <v-chip size="small" class="mb-1">CC. {{ clientNode.client.documentId }}</v-chip>
+                        <v-chip size="small" class="mb-1">Tel. {{ clientNode.client.phone }}</v-chip>
                         <v-chip size="small">{{ clientNode.client.email }}</v-chip>
                       </div>
                     </div>
@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import type { ClientTreeNode } from '../types/client';
 
-defineProps<{
+const props = defineProps<{
   data: ClientTreeNode;
 }>();
 
@@ -78,14 +78,36 @@ const getNodeIcon = (item: ClientTreeNode) => {
 };
 
 const getNodeColor = (item: ClientTreeNode) => {
+  // Root node color (JMC)
   if (item.id === 'root') return '#435f8c';
-  if (item.id.startsWith('status')) {
-    if (item.name.toLowerCase().includes('activo')) return '#4caf50';
-    if (item.name.toLowerCase().includes('inactivo')) return '#ff9800';
-    if (item.name.toLowerCase().includes('lista negra')) return '#000000';
-    return '#2196f3';
+
+  // Get node status (either directly or from parent)
+  let statusName = '';
+  
+  // If this is a status node, use its name
+  if (item.id.startsWith('status-')) {
+    statusName = item.name.toLowerCase();
+  } 
+  // If this is a client node, find its parent status node
+  else if (item.id.startsWith('client-')) {
+    // Find the status node that contains this client
+    const parentStatus = props.data.children?.find(
+      (status: ClientTreeNode) => status.children?.some(
+        (client: ClientTreeNode) => client.id === item.id
+      )
+    );
+    if (parentStatus) {
+      statusName = parentStatus.name.toLowerCase();
+    }
   }
-  return '#90a4ae';
+
+  // Return color based on status name
+  if (statusName.includes('activo')) return '#4caf50';      // Green
+  if (statusName.includes('inactivo')) return '#808080';    // Grey
+  if (statusName.includes('lista negra')) return '#000000'; // Black
+  
+  // Default white for other cases
+  return '#ffffff';
 };
 </script>
 
@@ -103,16 +125,42 @@ const getNodeColor = (item: ClientTreeNode) => {
   display: flex;
   align-items: center;
   padding: 12px;
-  border-radius: 8px;
   color: white;
   min-width: 200px;
   margin: 10px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border: 1px solid #ddd;
 }
 
-.root {
-  background-color: #435f8c;
-  margin-bottom: 20px;
+.node[style*="background-color: #ffffff"] {
+  color: #000;
+}
+
+.root, .status {
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  min-width: unset;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 16px;
+}
+
+.root .content, .status .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.root .icon, .status .icon {
+  margin-left: 0;
+  margin-top: 8px;
+}
+
+.client {
+  border-radius: 8px;
 }
 
 .content {
@@ -201,14 +249,6 @@ const getNodeColor = (item: ClientTreeNode) => {
 .client-node-wrapper {
   display: flex;
   align-items: center;
-}
-
-.client {
-  background-color: #90a4ae;
-}
-
-.status {
-  background-color: #2196f3;
 }
 
 /* Responsive adjustments */
