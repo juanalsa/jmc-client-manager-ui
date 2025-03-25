@@ -5,6 +5,7 @@ export interface ClientStatus {
 }
 
 export interface Client {
+  id: number;
   fullName: string;
   documentId: string;
   phone: string;
@@ -15,4 +16,17 @@ export interface Client {
 export interface CreateStatusRequest {
   description: string;
   isActive: boolean;
+}
+
+export interface ClientsResponse {
+  clients: Client[];
+  clientsCount: number;
+}
+
+export interface ClientTreeNode {
+  id: string;
+  name: string;
+  count?: number;
+  children?: ClientTreeNode[];
+  client?: Client;
 }
