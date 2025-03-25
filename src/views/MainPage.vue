@@ -1,5 +1,16 @@
 <template>
   <v-layout class="fill-height">
+    <v-app-bar color="primary">
+      <v-app-bar-title class="text-white">JMC Client Manager</v-app-bar-title>
+      <v-spacer></v-spacer>
+      <v-btn
+        color="error"
+        @click="handleLogout"
+        prepend-icon="mdi-logout"
+      >
+        Logout
+      </v-btn>
+    </v-app-bar>
     <v-main>
       <v-container class="fill-height">
         <v-row align="center" justify="center">
@@ -39,7 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from '../components/AppHeader.vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
+
+const router = useRouter();
+const authStore = useAuthStore();
 
 const options = [
   {
@@ -58,4 +73,9 @@ const options = [
     icon: 'mdi-tag-plus'
   }
 ];
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/');
+};
 </script>
