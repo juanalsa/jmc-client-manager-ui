@@ -9,7 +9,7 @@
           {{ successMessage }}
         </div>
 
-        <Form @submit="handleSubmit" :validation-schema="schema" v-slot="{ errors }">
+        <Form @submit="handleSubmit" :validation-schema="schema" v-slot="{ errors, resetForm }">
           <div class="space-y-6">
             <div>
               <label for="description" class="block text-sm font-medium text-gray-700">
@@ -89,7 +89,7 @@ const schema = yup.object({
     .transform((value) => value === 'true')
 });
 
-const handleSubmit = async (values: any) => {
+const handleSubmit = async (values: any, { resetForm }: any) => {
   try {
     isLoading.value = true;
     errorMessage.value = '';
@@ -101,11 +101,7 @@ const handleSubmit = async (values: any) => {
     });
     
     successMessage.value = 'Status created successfully';
-    // Reset form
-    values = {
-      description: '',
-      isActive: ''
-    };
+    resetForm();
   } catch (error: any) {
     const response = error.response?.data;
     if (response?.errors) {

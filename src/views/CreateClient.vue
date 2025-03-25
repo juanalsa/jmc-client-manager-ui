@@ -9,7 +9,7 @@
           {{ successMessage }}
         </div>
 
-        <Form @submit="handleSubmit" :validation-schema="schema" v-slot="{ errors }">
+        <Form @submit="handleSubmit" :validation-schema="schema" v-slot="{ errors, resetForm }">
           <div class="space-y-6">
             <div>
               <label for="fullName" class="block text-sm font-medium text-gray-700">
@@ -146,7 +146,7 @@ onMounted(async () => {
   }
 });
 
-const handleSubmit = async (values: any) => {
+const handleSubmit = async (values: any, { resetForm }: any) => {
   try {
     isLoading.value = true;
     errorMessage.value = '';
@@ -158,14 +158,7 @@ const handleSubmit = async (values: any) => {
     });
     
     successMessage.value = 'Client created successfully';
-    // Reset form
-    values = {
-      fullName: '',
-      documentId: '',
-      phone: '',
-      email: '',
-      statusId: ''
-    };
+    resetForm();
   } catch (error: any) {
     const response = error.response?.data;
     if (response?.errors) {
