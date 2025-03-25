@@ -83,7 +83,7 @@ export const useClientStore = defineStore("client", () => {
 
       const statusNode: ClientTreeNode = {
         id: `status-${status.id}`,
-        name: status.description,
+        name: `${status.description} ${statusCount}`,
         count: statusCount,
         children: statusClients.map((client) => ({
           id: `client-${client.id}`,
